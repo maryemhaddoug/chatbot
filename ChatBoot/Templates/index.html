@@ -1,0 +1,85 @@
+<!-- templates/index.html -->
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Chatbot</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        max-width: 600px;
+        margin: 50px auto;
+      }
+      .chat-box {
+        border: 1px solid #ddd;
+        padding: 10px;
+        margin-bottom: 20px;
+        height: 400px;
+        overflow-y: scroll;
+      }
+      .user-message {
+        text-align: right;
+        color: blue;
+      }
+      .bot-message {
+        text-align: left;
+        color: green;
+      }
+      .input-box {
+        display: flex;
+      }
+      .input-box input {
+        flex: 1;
+        padding: 10px;
+        font-size: 16px;
+      }
+      .input-box button {
+        padding: 10px;
+        font-size: 16px;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Chat with the Bot</h1>
+    <div class="chat-box" id="chat-box"></div>
+    <div class="input-box">
+      <input
+        type="text"
+        id="user-input"
+        name="user-input"
+        placeholder="Type a message"
+      />
+      <button onclick="sendMessage()">Send</button>
+    </div>
+
+    <script>
+      function appendMessage(message, className) {
+        const chatBox = document.getElementById("chat-box");
+        const messageElement = document.createElement("div");
+        messageElement.className = className;
+        messageElement.textContent = message;
+        chatBox.appendChild(messageElement);
+        chatBox.scrollTop = chatBox.scrollHeight;
+      }
+
+      async function sendMessage() {
+        const userInput = document.getElementById("user-input");
+        const message = userInput.value;
+        if (message.trim() === "") return;
+
+        appendMessage("You: " + message, "user-message");
+        userInput.value = "";
+
+        const response = await fetch("/get_response", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ message: message }),
+        });
+
+        const data = await response.json();
+        appendMessage("Bot: " + data.response, "bot-message");
+      }
+    </script>
+  </body>
+</html>
